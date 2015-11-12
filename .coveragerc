@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = vif_plug_vhostuser
+omit = tests/*,vif_plug_vhostuser/openstack/*
+
+[report]
+ignore-errors = True
