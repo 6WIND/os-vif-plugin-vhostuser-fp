@@ -27,8 +27,4 @@ except ImportError:
 
 setuptools.setup(
     setup_requires=['pbr'],
-    entry_points={
-        'os_vif': [
-            'vhostuser = vif_plug_vhostuser.vhostuser:VhostuserPlugin',
-        ],
     pbr=True)
