@@ -21,17 +21,17 @@ from os_vif_plugin_vhostuser_fp.i18n import _LE
 from oslo_concurrency import processutils
 from oslo_log import log as logging
 
-from vif_plug_vhostuser_fp_bridged.plug_lb import linuxbridge
-from vif_plug_vhostuser_fp_bridged.plug_ovs import ovs
+from vif_plug_vhostuser_fp.plug_lb import linuxbridge
+from vif_plug_vhostuser_fp.plug_ovs import ovs
 
 
-PLUGIN_NAME = 'vhostuser_fp_bridged'
+PLUGIN_NAME = 'vhostuser_fp'
 LOG = logging.getLogger(__name__)
 OVS_FP = 'ovs_fp'
 LB_FP = 'lb_fp'
 
 
-class VhostuserFpBridgedPlugin(plugin.PluginBase):
+class VhostuserFpPlugin(plugin.PluginBase):
     """TBD
 
     An os-vif plugin to bu used when pluggin/unpluggins fastpath vhostuser
@@ -39,42 +39,55 @@ class VhostuserFpBridgedPlugin(plugin.PluginBase):
     """
 
     def __init__(self, config):
-        super(VhostuserFpBridgedPlugin, self).__init__(config)
+        super(VhostuserFpPlugin, self).__init__(config)
         self.ovs = ovs.OvsFpPlugin(OVS_FP)
         self.lb = linuxbridge.LinuxBridgeFpPlugin(LB_FP)
 
     def describe(self):
         return objects.host_info.HostPluginInfo(
-            plugin_name="vhostuser_fp_bridged",
+            plugin_name="vhostuser_fp",
             vif_info=[
                 objects.host_info.HostVIFInfo(
-                    vif_object_name=objects.vif.VIFVHostUserFPBridged.__name__,
+                    vif_object_name=objects.vif.VIFVHostUser.__name__,
                     min_version="1.0",
                     max_version="1.0")
             ])
 
     def plug(self, vif, instance_info):
-        if not isinstance(vif, objects.vif.VIFVHostUserFPBridged):
+        if not isinstance(vif, objects.vif.VIFVHostUser):
             raise Exception
 
         try:
+            LOG.debug("Francesco %s and %s" % (vif.port_profile, vif.network))
             if isinstance(vif.port_profile,
-                          objects.vif.VIFPortProfileOpenVSwitch):
+                          objects.vif.VIFPortProfileFPOpenVSwitch):
                 self.ovs.plug(vif, instance_info)
-            else:
+            elif isinstance(vif.port_profile,
+                            objects.vif.VIFPortProfileFPBridge):
                 self.lb.plug(vif, instance_info)
+            elif isinstance(vif.port_profile,
+                            objects.vif.VIFPortProfileFPTap):
+                pass
+            else:
+                raise Exception
         except processutils.ProcessExecutionError:
             LOG.exception(_LE("Failed while plugging vif"))
 
     def unplug(self, vif, instance_info):
-        if not isinstance(vif, objects.vif.VIFVHostUserFPBridged):
+        if not isinstance(vif, objects.vif.VIFVHostUser):
             raise Exception
 
         try:
             if isinstance(vif.port_profile,
-                          objects.vif.VIFPortProfileOpenVSwitch):
+                          objects.vif.VIFPortProfileFPOpenVSwitch):
                 self.ovs.unplug(vif, instance_info)
-            else:
+            elif isinstance(vif.port_profile,
+                            objects.vif.VIFPortProfileFPBridge):
                 self.lb.unplug(vif, instance_info)
+            elif isinstance(vif.port_profile,
+                            objects.vif.VIFPortProfileFPTap):
+                pass
+            else:
+                raise Exception
         except processutils.ProcessExecutionError:
             LOG.exception(_LE("Failed while unplugging vif"))

@@ -18,8 +18,8 @@ from oslo_log import log as logging
 from os_vif_plugin_vhostuser_fp import fp_plugin
 
 from vif_plug_ovs import constants
-from vif_plug_vhostuser_fp_bridged.plug_ovs import linux_net
-from vif_plug_vhostuser_fp_bridged import common
+from vif_plug_vhostuser_fp.plug_ovs import linux_net
+from vif_plug_vhostuser_fp import common
 
 
 LOG = logging.getLogger(__name__)
@@ -77,14 +77,14 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
 
         v1_name, v2_name = self.get_veth_pair_names(vif)
 
-        common.ensure_bridge(vif.bridge_name)
+        common.ensure_bridge(vif.port_profile.bridge_name)
 
-        common.add_bridge_port(vif.bridge_name, vif.vif_name)
+        common.add_bridge_port(vif.port_profile.bridge_name, vif.vif_name)
 
         if not linux_net.device_exists(v2_name):
             linux_net.create_veth_pair(v1_name, v2_name,
                                        self.config.network_device_mtu)
-            common.add_bridge_port(vif.bridge_name, v1_name)
+            common.add_bridge_port(vif.port_profile.bridge_name, v1_name)
             linux_net.ensure_ovs_bridge(vif.network.bridge,
                                         constants.OVS_DATAPATH_SYSTEM)
             self._create_vif_port(vif, v2_name, instance_info)
@@ -98,7 +98,7 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
 
         v1_name, v2_name = self.get_veth_pair_names(vif)
 
-        common.delete_bridge(vif.bridge_name, v1_name)
+        common.delete_bridge(vif.port_profile.bridge_name, v1_name)
 
         linux_net.delete_ovs_vif_port(vif.network.bridge, v2_name,
                                       timeout=self.config.ovs_vsctl_timeout)
@@ -116,10 +116,11 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
             raise processutils.ProcessExecutionError()
 
         try:
-            if vif.has_traffic_filtering and vif.bridge_name != vif.network.bridge:
+            LOG.debug("OVS plug + fastpath")
+            if vif.port_profile.hybrid_plug:
                 self._plug_bridge(vif, instance_info)
             else:
-                linux_net.ensure_ovs_bridge(vif.bridge_name,
+                linux_net.ensure_ovs_bridge(vif.port_profile.bridge_name,
                                             constants.OVS_DATAPATH_SYSTEM)
                 self._create_vif_port(vif, vif.vif_name, instance_info)
         except Exception:
@@ -132,7 +133,7 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
         """
 
         try:
-            if vif.has_traffic_filtering and vif.bridge_name != vif.network.bridge:
+            if vif.port_profile.hybrid_plug:
                 self._unplug_bridge(vif, instance_info)
             else:
                 linux_net.delete_ovs_vif_port(

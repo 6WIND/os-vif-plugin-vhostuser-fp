@@ -30,9 +30,9 @@ from vif_plug_ovs import constants
 from vif_plug_ovs import exception
 from vif_plug_ovs.i18n import _LE
 
-from vif_plug_vhostuser_fp_bridged import privsep
-from vif_plug_vhostuser_fp_bridged.common import set_device_mtu
-from vif_plug_vhostuser_fp_bridged.common import device_exists
+from vif_plug_vhostuser_fp import privsep
+from vif_plug_vhostuser_fp.common import set_device_mtu
+from vif_plug_vhostuser_fp.common import device_exists
 
 LOG = logging.getLogger(__name__)
 

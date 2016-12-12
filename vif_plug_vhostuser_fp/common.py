@@ -17,7 +17,7 @@
 from oslo_concurrency import processutils
 from oslo_log import log as logging
 
-from vif_plug_vhostuser_fp_bridged import privsep
+from vif_plug_vhostuser_fp import privsep
 
 import os
 

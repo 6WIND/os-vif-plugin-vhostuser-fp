@@ -18,8 +18,8 @@ from oslo_log import log as logging
 
 from os_vif_plugin_vhostuser_fp import fp_plugin
 
-from vif_plug_vhostuser_fp_bridged import common
-from vif_plug_vhostuser_fp_bridged.plug_lb import linux_net
+from vif_plug_vhostuser_fp import common
+from vif_plug_vhostuser_fp.plug_lb import linux_net
 
 
 LOG = logging.getLogger(__name__)
@@ -56,8 +56,8 @@ class LinuxBridgeFpPlugin(fp_plugin.FpPluginBase):
             raise processutils.ProcessExecutionError()
 
         try:
-            common.ensure_bridge(vif.bridge_name)
-            common.add_bridge_port(vif.bridge_name, vif.vif_name)
+            common.ensure_bridge(vif.port_profile.bridge_name)
+            common.add_bridge_port(vif.port_profile.bridge_name, vif.vif_name)
         except Exception:
             raise processutils.ProcessExecutionError()
 
@@ -68,7 +68,8 @@ class LinuxBridgeFpPlugin(fp_plugin.FpPluginBase):
         """
 
         try:
-            linux_net.delete_bridge_port(vif.bridge_name, vif.vif_name)
+            linux_net.delete_bridge_port(vif.port_profile.bridge_name,
+                                         vif.vif_name)
         except Exception:
             raise processutils.ProcessExecutionError()
 

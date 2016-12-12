@@ -15,8 +15,8 @@ from oslo_privsep import capabilities as c
 from oslo_privsep import priv_context
 
 vif_plug = priv_context.PrivContext(
-    "vif_plug_vhostuser_fp_bridged",
-    cfg_section="vif_plug_vhostuser_fp_bridged_privileged",
+    "vif_plug_vhostuser_fp",
+    cfg_section="vif_plug_vhostuser_fp_privileged",
     pypath=__name__ + ".vif_plug",
     capabilities=[c.CAP_NET_ADMIN],
 )
