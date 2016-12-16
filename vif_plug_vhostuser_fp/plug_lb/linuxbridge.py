@@ -56,6 +56,7 @@ class LinuxBridgeFpPlugin(fp_plugin.FpPluginBase):
             raise processutils.ProcessExecutionError()
 
         try:
+            LOG.info("Plugging fastpath vhostuser port in bridge")
             common.ensure_bridge(vif.port_profile.bridge_name)
             common.add_bridge_port(vif.port_profile.bridge_name, vif.vif_name)
         except Exception:

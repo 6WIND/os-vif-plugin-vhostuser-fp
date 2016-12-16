@@ -58,7 +58,7 @@ class VhostuserFpPlugin(plugin.PluginBase):
             raise Exception
 
         try:
-            LOG.debug("Francesco %s and %s" % (vif.port_profile, vif.network))
+            LOG.debug("fastpath vhostuser plug for profile %s" % vif.port_profile)
             if isinstance(vif.port_profile,
                           objects.vif.VIFPortProfileFPOpenVSwitch):
                 self.ovs.plug(vif, instance_info)

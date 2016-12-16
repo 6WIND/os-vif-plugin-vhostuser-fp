@@ -116,7 +116,7 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
             raise processutils.ProcessExecutionError()
 
         try:
-            LOG.debug("OVS plug + fastpath")
+            LOG.info("Plugging fastpath vhostuser port in ovs")
             if vif.port_profile.hybrid_plug:
                 self._plug_bridge(vif, instance_info)
             else:
