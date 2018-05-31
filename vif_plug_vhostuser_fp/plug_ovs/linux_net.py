@@ -26,9 +26,10 @@ from oslo_concurrency import processutils
 from oslo_log import log as logging
 from oslo_utils import excutils
 
+from os_vif_plugin_vhostuser_fp.i18n import _LE
+
 from vif_plug_ovs import constants
 from vif_plug_ovs import exception
-from vif_plug_ovs.i18n import _LE
 
 from vif_plug_vhostuser_fp import privsep
 from vif_plug_vhostuser_fp.common import set_device_mtu
