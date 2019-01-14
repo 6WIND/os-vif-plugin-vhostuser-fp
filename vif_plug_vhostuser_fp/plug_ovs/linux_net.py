@@ -90,7 +90,8 @@ def delete_ovs_vif_port(bridge, dev, timeout=None):
                timeout=timeout)
 
 
-def _delete_net_dev(dev):
+@privsep.vif_plug.entrypoint
+def delete_net_dev(dev):
     """Delete a network device only if it exists."""
     if device_exists(dev):
         try:
@@ -108,7 +109,7 @@ def create_veth_pair(dev1_name, dev2_name, mtu):
     deleting any previous devices with those names.
     """
     for dev in [dev1_name, dev2_name]:
-        _delete_net_dev(dev)
+        delete_net_dev(dev)
 
     processutils.execute('ip', 'link', 'add', dev1_name,
                          'type', 'veth', 'peer', 'name', dev2_name)

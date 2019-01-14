@@ -96,13 +96,12 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
         Unhook port from OVS, unhook port from bridge, delete
         bridge, and delete both veth devices.
         """
-
         v1_name, v2_name = self.get_veth_pair_names(vif)
-
         common.delete_bridge(vif.port_profile.bridge_name, v1_name)
-
         linux_net.delete_ovs_vif_port(vif.network.bridge, v2_name,
                                       timeout=self.config.ovs_vsctl_timeout)
+        # delete VETH pair
+        linux_net.delete_net_dev(v2_name)
 
     def plug(self, vif, instance_info):
         """TBD
