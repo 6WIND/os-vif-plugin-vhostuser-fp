@@ -75,9 +75,7 @@ def create_ovs_vif_port(bridge, dev, iface_id, mac, instance_id,
     _ovs_vsctl(_create_ovs_vif_cmd(bridge, dev, iface_id,
                                    mac, instance_id,
                                    interface_type), timeout=timeout)
-    # Note at present there is no support for setting the
-    # mtu for vhost-user type ports.
-    if mtu and interface_type != constants.OVS_VHOSTUSER_INTERFACE_TYPE:
+    if mtu:
         set_device_mtu(dev, mtu)
     else:
         LOG.debug("MTU not set on %(interface_name)s interface "

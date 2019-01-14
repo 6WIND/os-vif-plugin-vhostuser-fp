@@ -49,9 +49,9 @@ class LinuxBridgeFpPlugin(fp_plugin.FpPluginBase):
         Create and plug fastpath vhostuser port in bridge
         """
 
-        mtu = self.config.network_device_mtu
         try:
-            common.create_fp_dev(vif.vif_name, vif.path, vif.mode, mtu)
+            common.create_fp_dev(vif.vif_name, vif.path, vif.mode,
+                                 self.get_mtu(vif))
         except Exception:
             raise processutils.ProcessExecutionError()
 

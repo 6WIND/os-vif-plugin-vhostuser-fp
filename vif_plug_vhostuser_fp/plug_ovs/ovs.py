@@ -63,7 +63,7 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
             vif_name,
             vif.port_profile.interface_id,
             vif.address, instance_info.uuid,
-            self.config.network_device_mtu,
+            self.get_mtu(vif),
             timeout=self.config.ovs_vsctl_timeout,
             **kwargs)
 
@@ -84,7 +84,7 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
 
         if not linux_net.device_exists(v2_name):
             linux_net.create_veth_pair(v1_name, v2_name,
-                                       self.config.network_device_mtu)
+                                       self.get_mtu(vif))
             common.add_bridge_port(vif.port_profile.bridge_name, v1_name)
             linux_net.ensure_ovs_bridge(vif.network.bridge,
                                         constants.OVS_DATAPATH_SYSTEM)
@@ -109,10 +109,9 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
 
         Create and plug fastpath vhostuser port in bridge
         """
-
-        mtu = self.config.network_device_mtu
         try:
-            common.create_fp_dev(vif.vif_name, vif.path, vif.mode, mtu)
+            common.create_fp_dev(vif.vif_name, vif.path, vif.mode,
+                                 self.get_mtu(vif))
         except Exception:
             raise processutils.ProcessExecutionError()
 

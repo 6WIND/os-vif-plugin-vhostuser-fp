@@ -62,3 +62,13 @@ class FpPluginBase(object):
         """
 
         pass
+
+    def get_mtu(self, vif):
+        """Given a vif to plug, get its network MTU setting
+        :param vif: `os_vif.objects.VIF` object.
+        :returns: `int` MTU value: either network MTU, to which vif will be
+                  plugged, or default 1500.
+        """
+        if vif.network and vif.network.mtu:
+            return vif.network.mtu
+        return self.config.network_device_mtu
