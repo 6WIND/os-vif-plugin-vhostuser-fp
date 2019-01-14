@@ -24,6 +24,7 @@ from oslo_concurrency import processutils
 
 from vif_plug_vhostuser_fp import privsep
 
+
 @privsep.vif_plug.entrypoint
 def delete_bridge_port(bridge, dev):
     processutils.execute('ip', 'link', 'set', bridge, 'down')

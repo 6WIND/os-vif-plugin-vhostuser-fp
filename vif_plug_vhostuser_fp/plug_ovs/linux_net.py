@@ -20,7 +20,6 @@
 
 """Implements vlans, bridges using linux utilities."""
 
-import os
 
 from oslo_concurrency import processutils
 from oslo_log import log as logging
@@ -28,12 +27,12 @@ from oslo_utils import excutils
 
 from os_vif_plugin_vhostuser_fp.i18n import _LE
 
-from vif_plug_ovs import constants
 from vif_plug_ovs import exception
 
-from vif_plug_vhostuser_fp import privsep
-from vif_plug_vhostuser_fp.common import set_device_mtu
 from vif_plug_vhostuser_fp.common import device_exists
+from vif_plug_vhostuser_fp.common import set_device_mtu
+from vif_plug_vhostuser_fp import privsep
+
 
 LOG = logging.getLogger(__name__)
 
@@ -54,12 +53,12 @@ def _ovs_vsctl(args, timeout=None):
 def _create_ovs_vif_cmd(bridge, dev, iface_id, mac,
                         instance_id, interface_type=None):
     cmd = ['--', '--if-exists', 'del-port', dev, '--',
-            'add-port', bridge, dev,
-            '--', 'set', 'Interface', dev,
-            'external-ids:iface-id=%s' % iface_id,
-            'external-ids:iface-status=active',
-            'external-ids:attached-mac=%s' % mac,
-            'external-ids:vm-uuid=%s' % instance_id]
+           'add-port', bridge, dev,
+           '--', 'set', 'Interface', dev,
+           'external-ids:iface-id=%s' % iface_id,
+           'external-ids:iface-status=active',
+           'external-ids:attached-mac=%s' % mac,
+           'external-ids:vm-uuid=%s' % instance_id]
     if interface_type:
         cmd += ['type=%s' % interface_type]
     return cmd

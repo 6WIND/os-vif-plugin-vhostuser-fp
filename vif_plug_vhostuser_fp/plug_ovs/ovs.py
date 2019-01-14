@@ -18,8 +18,9 @@ from oslo_log import log as logging
 from os_vif_plugin_vhostuser_fp import fp_plugin
 
 from vif_plug_ovs import constants
-from vif_plug_vhostuser_fp.plug_ovs import linux_net
+
 from vif_plug_vhostuser_fp import common
+from vif_plug_vhostuser_fp.plug_ovs import linux_net
 
 
 LOG = logging.getLogger(__name__)

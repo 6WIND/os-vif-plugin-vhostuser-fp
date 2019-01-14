@@ -14,7 +14,7 @@
 
 from os_vif import objects
 from os_vif import plugin
-from os_vif import exception
+
 
 from os_vif_plugin_vhostuser_fp.i18n import _LE
 
@@ -58,7 +58,8 @@ class VhostuserFpPlugin(plugin.PluginBase):
             raise Exception
 
         try:
-            LOG.debug("fastpath vhostuser plug for profile %s" % vif.port_profile)
+            LOG.debug("fastpath vhostuser plug for profile %s"
+                      % vif.port_profile)
             if isinstance(vif.port_profile,
                           objects.vif.VIFPortProfileFPOpenVSwitch):
                 self.ovs.plug(vif, instance_info)

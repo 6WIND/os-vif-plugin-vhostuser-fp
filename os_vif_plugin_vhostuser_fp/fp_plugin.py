@@ -26,8 +26,7 @@ class FpPluginBase(object):
     CONFIG_OPTS = ()
 
     def __init__(self, plugin_name, config):
-        """
-        Initialize the plugin object with the provided config
+        """Initialize the plugin object with the provided config
 
         :param config: `oslo_config.ConfigOpts.GroupAttr` instance:
         """
@@ -40,8 +39,7 @@ class FpPluginBase(object):
 
     @abc.abstractmethod
     def plug(self, vif, instance_info):
-        """
-        Given a fp_plug_type, perform operations to plug the VIF properly.
+        """Given a fp_plug_type, perform operations to plug the VIF properly.
 
         :param vif: `os_vif.objects.VIF` object.
         :param instance_info: `os_vif.objects.InstanceInfo` object.
@@ -54,8 +52,7 @@ class FpPluginBase(object):
 
     @abc.abstractmethod
     def unplug(self, vif, instance_info):
-        """
-        Given a fp_plug_type, perform operations to unplug the VIF properly.
+        """Given a fp_plug_type, perform operations to unplug the VIF properly.
 
         :param vif: `os_vif.objects.VIF` object.
         :param instance_info: `os_vif.objects.InstanceInfo` object.

@@ -34,6 +34,7 @@ def device_exists(device):
     """Check if ethernet device exists."""
     return os.path.exists('/sys/class/net/%s' % device)
 
+
 @privsep.vif_plug.entrypoint
 def ensure_bridge(bridge):
     if not device_exists(bridge):
