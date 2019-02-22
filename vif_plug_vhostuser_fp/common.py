@@ -13,13 +13,13 @@
 
 from oslo_concurrency import processutils
 
-from fp_vdev_remote.utils import FP_VDEV_CMD
-from fp_vdev_remote.utils import get_vdev_cmd
+from fp_vdev_remote.vdev_utils import get_vdev_cmd
 
 from vif_plug_vhostuser_fp import privsep
 
 import os
 
+FP_VDEV_CMD = None
 
 def set_device_mtu(dev, mtu):
     """Set the device MTU."""
@@ -67,12 +67,12 @@ def add_bridge_port(bridge, dev):
 
 @privsep.vif_plug.entrypoint
 def create_fp_dev(dev, sockpath, sockmode_qemu, mtu):
-    fp_vdev_bin = FP_VDEV_CMD
-    if fp_vdev_bin is None:
-        fp_vdev_bin = get_vdev_cmd()
+    global FP_VDEV_CMD
+    if FP_VDEV_CMD is None:
+        FP_VDEV_CMD = get_vdev_cmd()
     if not device_exists(dev):
         sockmode = 'client' if sockmode_qemu == 'server' else 'server'
-        processutils.execute(fp_vdev_bin, 'add', dev, '--sockpath', sockpath,
+        processutils.execute(FP_VDEV_CMD, 'add', dev, '--sockpath', sockpath,
                              '--sockmode', sockmode, run_as_root=True)
         set_device_mtu(dev, mtu)
         processutils.execute('ip', 'link', 'set', dev, 'up',
@@ -81,8 +81,8 @@ def create_fp_dev(dev, sockpath, sockmode_qemu, mtu):
 
 @privsep.vif_plug.entrypoint
 def delete_fp_dev(dev):
+    global FP_VDEV_CMD
     if device_exists(dev):
-        fp_vdev_bin = FP_VDEV_CMD
-        if fp_vdev_bin is None:
-            fp_vdev_bin = get_vdev_cmd()
-        processutils.execute(fp_vdev_bin, 'del', dev)
+        if FP_VDEV_CMD is None:
+            FP_VDEV_CMD = get_vdev_cmd()
+        processutils.execute(FP_VDEV_CMD, 'del', dev)
