@@ -11,11 +11,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Implements vlans, bridges, and iptables rules using linux utilities."""
-
-
 from oslo_concurrency import processutils
-from oslo_log import log as logging
 
 from fp_vdev_remote.utils import FP_VDEV_CMD
 from fp_vdev_remote.utils import get_vdev_cmd
@@ -23,8 +19,6 @@ from fp_vdev_remote.utils import get_vdev_cmd
 from vif_plug_vhostuser_fp import privsep
 
 import os
-
-LOG = logging.getLogger(__name__)
 
 
 def set_device_mtu(dev, mtu):
