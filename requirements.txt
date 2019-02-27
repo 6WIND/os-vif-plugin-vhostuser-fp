@@ -1,10 +1,10 @@
 setuptools==33.1.1
 oslo.config==4.8.0
-os_vif==1.14.0
-oslo_concurrency==3.29.0
-oslo_config==6.8.0
-oslo.i18n==3.23.0
-oslo_log==3.42.2
-oslo_privsep==1.32.0
-oslo.utils==3.40.2
-fp-vdev-remote
+os_vif==1.15.1
+oslo_concurrency==3.29.1
+oslo_config==6.8.1
+oslo.i18n==3.23.1
+oslo_log==3.42.3
+oslo_privsep==1.32.1
+oslo.utils==3.40.3
+-e https://github.com/6WIND/fp-vdev-remote.git#egg=fp-vdev-remote

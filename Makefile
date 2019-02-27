@@ -2,15 +2,28 @@
 
 PYTHON := python
 DIST_DIR := dist
+DEPS := ""
 
 clean:
 	find . -name "*.py[co]" -exec rm '{}' \;
 	rm -rf *.egg-info/ dist/ build/
+
+update:
+	@if which pipreqs; then \
+		pipreqs . --force; \
+		echo "-e https://github.com/6WIND/fp-vdev-remote.git#egg=fp-vdev-remote" >> requirements.txt; \
+	else \
+		echo "WARNING: Can not update requirements.txt, please, check it manually"; \
+	fi;
+
 sdist:
 	$(PYTHON) ./setup.py sdist --dist-dir=$(DIST_DIR)
 
 rpm:
-	$(PYTHON) ./setup.py bdist_rpm --binary-only --dist-dir=$(DIST_DIR)
+	@for file in $$(cat rpm_deps.txt); do \
+        DEPS+=" $$file"; \
+    done; \
+	$(PYTHON) ./setup.py bdist_rpm --binary-only --dist-dir=${DIST_DIR} --requires "$${DEPS}"
 
 build:
 	$(PYTHON) ./setup.py build ${ARGS}
@@ -24,4 +37,4 @@ develop:
 missing_licenses:
 	git grep -LiI "Copyright .* 6WIND S.A." | grep -v "^\."
 
-.PHONY: clean sdist bdist_rpm build install missing_licenses dist develop
+.PHONY: clean update sdist bdist_rpm build install missing_licenses dist develop
