@@ -21,6 +21,7 @@ import os
 
 FP_VDEV_CMD = None
 
+
 def set_device_mtu(dev, mtu):
     """Set the device MTU."""
     processutils.execute('ip', 'link', 'set', dev, 'mtu', mtu,
