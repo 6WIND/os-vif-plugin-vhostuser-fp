@@ -1,5 +1,6 @@
 include AUTHORS
 include ChangeLog
+include scripts
 exclude .gitignore
 exclude .gitreview
 
