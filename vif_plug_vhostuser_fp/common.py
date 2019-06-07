@@ -15,55 +15,11 @@ from oslo_concurrency import processutils
 
 from fp_vdev_remote.vdev_utils import get_vdev_cmd
 
+from vif_plug_ovs import linux_net
 from vif_plug_vhostuser_fp import privsep
 
-import os
 
 FP_VDEV_CMD = None
-
-
-def set_device_mtu(dev, mtu):
-    """Set the device MTU."""
-    processutils.execute('ip', 'link', 'set', dev, 'mtu', mtu,
-                         check_exit_code=[0, 2, 254])
-
-
-def device_exists(device):
-    """Check if ethernet device exists."""
-    return os.path.exists('/sys/class/net/%s' % device)
-
-
-@privsep.vif_plug.entrypoint
-def ensure_bridge(bridge):
-    if not device_exists(bridge):
-        processutils.execute('brctl', 'addbr', bridge)
-        processutils.execute('brctl', 'setfd', bridge, 0)
-        processutils.execute('brctl', 'stp', bridge, 'off')
-        syspath = '/sys/class/net/%s/bridge/multicast_snooping'
-        syspath = syspath % bridge
-        processutils.execute('tee', syspath, process_input='0',
-                             check_exit_code=[0, 1])
-        disv6 = ('/proc/sys/net/ipv6/conf/%s/disable_ipv6' %
-                 bridge)
-        if os.path.exists(disv6):
-            processutils.execute('tee',
-                                 disv6,
-                                 process_input='1',
-                                 check_exit_code=[0, 1])
-
-
-@privsep.vif_plug.entrypoint
-def delete_bridge(bridge, dev):
-    if device_exists(bridge):
-        processutils.execute('brctl', 'delif', bridge, dev)
-        processutils.execute('ip', 'link', 'set', bridge, 'down')
-        processutils.execute('brctl', 'delbr', bridge)
-
-
-@privsep.vif_plug.entrypoint
-def add_bridge_port(bridge, dev):
-    processutils.execute('ip', 'link', 'set', bridge, 'up')
-    processutils.execute('brctl', 'addif', bridge, dev)
 
 
 @privsep.vif_plug.entrypoint
@@ -71,11 +27,11 @@ def create_fp_dev(dev, sockpath, sockmode_qemu, mtu):
     global FP_VDEV_CMD
     if FP_VDEV_CMD is None:
         FP_VDEV_CMD = get_vdev_cmd()
-    if not device_exists(dev):
+    if not linux_net.device_exists(dev):
         sockmode = 'client' if sockmode_qemu == 'server' else 'server'
         processutils.execute(FP_VDEV_CMD, 'add', dev, '--sockpath', sockpath,
                              '--sockmode', sockmode, run_as_root=True)
-        set_device_mtu(dev, mtu)
+        linux_net._set_device_mtu(dev, mtu)
         processutils.execute('ip', 'link', 'set', dev, 'up',
                              check_exit_code=[0, 2, 254])
 
@@ -83,7 +39,7 @@ def create_fp_dev(dev, sockpath, sockmode_qemu, mtu):
 @privsep.vif_plug.entrypoint
 def delete_fp_dev(dev):
     global FP_VDEV_CMD
-    if device_exists(dev):
+    if linux_net.device_exists(dev):
         if FP_VDEV_CMD is None:
             FP_VDEV_CMD = get_vdev_cmd()
         processutils.execute(FP_VDEV_CMD, 'del', dev)

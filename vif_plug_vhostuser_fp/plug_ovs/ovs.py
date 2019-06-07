@@ -18,9 +18,9 @@ from oslo_log import log as logging
 from os_vif_plugin_vhostuser_fp import fp_plugin
 
 from vif_plug_ovs import constants
+from vif_plug_ovs import linux_net
 
 from vif_plug_vhostuser_fp import common
-from vif_plug_vhostuser_fp.plug_ovs import linux_net
 
 
 LOG = logging.getLogger(__name__)
@@ -78,14 +78,14 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
 
         v1_name, v2_name = self.get_veth_pair_names(vif)
 
-        common.ensure_bridge(vif.port_profile.bridge_name)
+        linux_net.ensure_bridge(vif.port_profile.bridge_name)
 
-        common.add_bridge_port(vif.port_profile.bridge_name, vif.vif_name)
+        linux_net.add_bridge_port(vif.port_profile.bridge_name, vif.vif_name)
 
         if not linux_net.device_exists(v2_name):
             linux_net.create_veth_pair(v1_name, v2_name,
                                        self.get_mtu(vif))
-            common.add_bridge_port(vif.port_profile.bridge_name, v1_name)
+            linux_net.add_bridge_port(vif.port_profile.bridge_name, v1_name)
             linux_net.ensure_ovs_bridge(vif.network.bridge,
                                         constants.OVS_DATAPATH_SYSTEM)
             self._create_vif_port(vif, v2_name, instance_info)
@@ -97,11 +97,9 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
         bridge, and delete both veth devices.
         """
         v1_name, v2_name = self.get_veth_pair_names(vif)
-        common.delete_bridge(vif.port_profile.bridge_name, v1_name)
+        linux_net.delete_bridge(vif.port_profile.bridge_name, v1_name)
         linux_net.delete_ovs_vif_port(vif.network.bridge, v2_name,
                                       timeout=self.config.ovs_vsctl_timeout)
-        # delete VETH pair
-        linux_net.delete_net_dev(v2_name)
 
     def plug(self, vif, instance_info):
         """TBD
@@ -132,6 +130,7 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
         """
 
         try:
+            LOG.info("Removing fastpath vhostuser port from ovs")
             if vif.port_profile.hybrid_plug:
                 self._unplug_bridge(vif, instance_info)
             else:
