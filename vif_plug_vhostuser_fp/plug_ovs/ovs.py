@@ -98,6 +98,9 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
         """
         v1_name, v2_name = self.get_veth_pair_names(vif)
         linux_net.delete_bridge(vif.port_profile.bridge_name, v1_name)
+        # v2_name will be deleted in linux_net.delete_ovs_vif_port,
+        # because by default the last parameter 'delete_netdev=True'
+        # v1_name is its VETH pair, will be auto removed by kernel
         linux_net.delete_ovs_vif_port(vif.network.bridge, v2_name,
                                       timeout=self.config.ovs_vsctl_timeout)
 
@@ -134,9 +137,12 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
             if vif.port_profile.hybrid_plug:
                 self._unplug_bridge(vif, instance_info)
             else:
+                # pass 'delete_netdev=False', because vhostuser port
+                # should be properly deleted later in common.delete_fp_dev
                 linux_net.delete_ovs_vif_port(
                     vif.network.bridge, vif.vif_name,
-                    timeout=self.config.ovs_vsctl_timeout)
+                    timeout=self.config.ovs_vsctl_timeout,
+                    delete_netdev=False)
         except Exception:
             raise processutils.ProcessExecutionError()
 
