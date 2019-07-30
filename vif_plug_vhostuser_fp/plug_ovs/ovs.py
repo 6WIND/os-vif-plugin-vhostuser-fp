@@ -15,6 +15,7 @@ from oslo_concurrency import processutils
 from oslo_config import cfg
 from oslo_log import log as logging
 
+from os_vif.internal.command import ip as ip_lib
 from os_vif_plugin_vhostuser_fp import fp_plugin
 
 from vif_plug_ovs import constants
@@ -82,7 +83,7 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
 
         linux_net.add_bridge_port(vif.port_profile.bridge_name, vif.vif_name)
 
-        if not linux_net.device_exists(v2_name):
+        if not ip_lib.exists(v2_name):
             linux_net.create_veth_pair(v1_name, v2_name,
                                        self.get_mtu(vif))
             linux_net.add_bridge_port(vif.port_profile.bridge_name, v1_name)

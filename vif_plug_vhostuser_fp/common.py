@@ -11,6 +11,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from os_vif.internal.command import ip as ip_lib
 from oslo_concurrency import processutils
 
 from fp_vdev_remote.vdev_utils import get_vdev_cmd
@@ -27,7 +28,7 @@ def create_fp_dev(dev, sockpath, sockmode_qemu, mtu):
     global FP_VDEV_CMD
     if FP_VDEV_CMD is None:
         FP_VDEV_CMD = get_vdev_cmd()
-    if not linux_net.device_exists(dev):
+    if not ip_lib.exists(dev):
         sockmode = 'client' if sockmode_qemu == 'server' else 'server'
         processutils.execute(FP_VDEV_CMD, 'add', dev, '--sockpath', sockpath,
                              '--sockmode', sockmode, run_as_root=True)
@@ -39,7 +40,7 @@ def create_fp_dev(dev, sockpath, sockmode_qemu, mtu):
 @privsep.vif_plug.entrypoint
 def delete_fp_dev(dev):
     global FP_VDEV_CMD
-    if linux_net.device_exists(dev):
+    if ip_lib.exists(dev):
         if FP_VDEV_CMD is None:
             FP_VDEV_CMD = get_vdev_cmd()
         processutils.execute(FP_VDEV_CMD, 'del', dev)
