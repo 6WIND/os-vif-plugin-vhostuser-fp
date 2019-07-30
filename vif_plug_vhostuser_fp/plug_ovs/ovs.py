@@ -20,6 +20,7 @@ from os_vif_plugin_vhostuser_fp import fp_plugin
 from vif_plug_ovs import constants
 from vif_plug_ovs import linux_net
 from vif_plug_ovs import ovs
+from vif_plug_ovs.ovsdb import ovsdb_lib
 
 from vif_plug_vhostuser_fp import common
 
@@ -36,16 +37,16 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
     def __init__(self, plugin_name):
         super(OvsFpPlugin, self).__init__(plugin_name,
                                           ovs.OvsPlugin.CONFIG_OPTS)
+        self.ovsdb = ovsdb_lib.BaseOVS(self.config)
 
 
     def _create_vif_port(self, vif, vif_name, instance_info, **kwargs):
-        linux_net.create_ovs_vif_port(
+        self.ovsdb.create_ovs_vif_port(
             vif.network.bridge,
             vif_name,
             vif.port_profile.interface_id,
             vif.address, instance_info.uuid,
             self.get_mtu(vif),
-            timeout=self.config.ovs_vsctl_timeout,
             **kwargs)
 
     def _plug_bridge(self, vif, instance_info):
@@ -67,8 +68,8 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
             linux_net.create_veth_pair(v1_name, v2_name,
                                        self.get_mtu(vif))
             linux_net.add_bridge_port(vif.port_profile.bridge_name, v1_name)
-            linux_net.ensure_ovs_bridge(vif.network.bridge,
-                                        constants.OVS_DATAPATH_SYSTEM)
+            self.ovsdb.ensure_ovs_bridge(vif.network.bridge,
+                                         constants.OVS_DATAPATH_SYSTEM)
             self._create_vif_port(vif, v2_name, instance_info)
 
     def _unplug_bridge(self, vif, instance_info):
@@ -82,8 +83,7 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
         # v2_name will be deleted in linux_net.delete_ovs_vif_port,
         # because by default the last parameter 'delete_netdev=True'
         # v1_name is its VETH pair, will be auto removed by kernel
-        linux_net.delete_ovs_vif_port(vif.network.bridge, v2_name,
-                                      timeout=self.config.ovs_vsctl_timeout)
+        self.ovsdb.delete_ovs_vif_port(vif.network.bridge, v2_name)
 
     def plug(self, vif, instance_info):
         """TBD
@@ -101,8 +101,8 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
             if vif.port_profile.hybrid_plug:
                 self._plug_bridge(vif, instance_info)
             else:
-                linux_net.ensure_ovs_bridge(vif.port_profile.bridge_name,
-                                            constants.OVS_DATAPATH_SYSTEM)
+                self.ovsdb.ensure_ovs_bridge(vif.network.bridge,
+                                             constants.OVS_DATAPATH_SYSTEM)
                 self._create_vif_port(vif, vif.vif_name, instance_info)
         except Exception:
             raise processutils.ProcessExecutionError()
@@ -120,10 +120,9 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
             else:
                 # pass 'delete_netdev=False', because vhostuser port
                 # should be properly deleted later in common.delete_fp_dev
-                linux_net.delete_ovs_vif_port(
-                    vif.network.bridge, vif.vif_name,
-                    timeout=self.config.ovs_vsctl_timeout,
-                    delete_netdev=False)
+                self.ovsdb.delete_ovs_vif_port(vif.network.bridge,
+                                               vif.vif_name,
+                                               delete_netdev=False)
         except Exception:
             raise processutils.ProcessExecutionError()
 
