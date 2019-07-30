@@ -32,7 +32,7 @@ def create_fp_dev(dev, sockpath, sockmode_qemu, mtu):
         sockmode = 'client' if sockmode_qemu == 'server' else 'server'
         processutils.execute(FP_VDEV_CMD, 'add', dev, '--sockpath', sockpath,
                              '--sockmode', sockmode, run_as_root=True)
-        linux_net._set_device_mtu(dev, mtu)
+        linux_net.set_device_mtu(dev, mtu)
         processutils.execute('ip', 'link', 'set', dev, 'up',
                              check_exit_code=[0, 2, 254])
 
