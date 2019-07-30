@@ -57,9 +57,9 @@ class LinuxBridgeFpPlugin(fp_plugin.FpPluginBase):
 
         try:
             LOG.info("Plugging fastpath vhostuser port in bridge")
-            linux_net.ensure_bridge(vif.port_profile.bridge_name)
-            linux_net.add_bridge_port(vif.port_profile.bridge_name,
-                                      vif.vif_name)
+            linux_net.ensure_bridge(bridge=vif.port_profile.bridge_name,
+                                    interface=vif.vif_name,
+                                    mtu=self.get_mtu(vif))
         except Exception:
             raise processutils.ProcessExecutionError()
 
@@ -68,12 +68,6 @@ class LinuxBridgeFpPlugin(fp_plugin.FpPluginBase):
 
         Unplug and delete fastpath vhostuser port in bridge
         """
-
-        try:
-            linux_net.delete_bridge_port(vif.port_profile.bridge_name,
-                                         vif.vif_name)
-        except Exception:
-            raise processutils.ProcessExecutionError()
 
         try:
             common.delete_fp_dev(vif.vif_name)
