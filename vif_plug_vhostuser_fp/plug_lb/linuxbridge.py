@@ -13,11 +13,11 @@
 #    under the License.
 
 from oslo_concurrency import processutils
-from oslo_config import cfg
 from oslo_log import log as logging
 
 from os_vif_plugin_vhostuser_fp import fp_plugin
 
+from vif_plug_linux_bridge import linux_bridge
 from vif_plug_linux_bridge import linux_net
 from vif_plug_vhostuser_fp import common
 
@@ -31,17 +31,10 @@ class LinuxBridgeFpPlugin(fp_plugin.FpPluginBase):
     FP plugin to deal with fastpath vhostuser ports for linuxbridge
     """
 
-    CONFIG_OPTS = (
-        cfg.IntOpt('network_device_mtu',
-                   default=1500,
-                   help='MTU setting for network interface.',
-                   deprecated_group="DEFAULT"),
-    )
-
     def __init__(self, plugin_name):
         super(LinuxBridgeFpPlugin, self).__init__(
             plugin_name,
-            LinuxBridgeFpPlugin.CONFIG_OPTS)
+            linux_bridge.LinuxBridgePlugin.CONFIG_OPTS)
 
     def plug(self, vif, instance_info):
         """TBD

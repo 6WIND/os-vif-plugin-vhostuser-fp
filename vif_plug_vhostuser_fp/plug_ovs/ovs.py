@@ -12,7 +12,6 @@
 #    under the License.
 
 from oslo_concurrency import processutils
-from oslo_config import cfg
 from oslo_log import log as logging
 
 from os_vif.internal.command import ip as ip_lib
@@ -20,6 +19,7 @@ from os_vif_plugin_vhostuser_fp import fp_plugin
 
 from vif_plug_ovs import constants
 from vif_plug_ovs import linux_net
+from vif_plug_ovs import ovs
 
 from vif_plug_vhostuser_fp import common
 
@@ -33,30 +33,10 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
     FP plugin to deal with fastpath vhostuser ports for openvswitch
     """
 
-    NIC_NAME_LEN = 14
-
-    CONFIG_OPTS = (
-        cfg.IntOpt('network_device_mtu',
-                   default=1500,
-                   help='MTU setting for network interface.',
-                   deprecated_group="DEFAULT"),
-        cfg.IntOpt('ovs_vsctl_timeout',
-                   default=120,
-                   help='Amount of time, in seconds, that ovs_vsctl should '
-                   'wait for a response from the database. 0 is to wait '
-                   'forever.',
-                   deprecated_group="DEFAULT"),
-    )
-
     def __init__(self, plugin_name):
-        super(OvsFpPlugin, self).__init__(plugin_name, OvsFpPlugin.CONFIG_OPTS)
+        super(OvsFpPlugin, self).__init__(plugin_name,
+                                          ovs.OvsPlugin.CONFIG_OPTS)
 
-    def gen_port_name(self, prefix, id):
-        return ("%s%s" % (prefix, id))[:OvsFpPlugin.NIC_NAME_LEN]
-
-    def get_veth_pair_names(self, vif):
-        return (self.gen_port_name("qvb", vif.id),
-                self.gen_port_name("qvo", vif.id))
 
     def _create_vif_port(self, vif, vif_name, instance_info, **kwargs):
         linux_net.create_ovs_vif_port(
@@ -77,7 +57,7 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
         VIF on the linux bridge using standard libvirt mechanisms.
         """
 
-        v1_name, v2_name = self.get_veth_pair_names(vif)
+        v1_name, v2_name = ovs.OvsPlugin.get_veth_pair_names(vif)
 
         linux_net.ensure_bridge(vif.port_profile.bridge_name)
 
@@ -97,7 +77,7 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
         Unhook port from OVS, unhook port from bridge, delete
         bridge, and delete both veth devices.
         """
-        v1_name, v2_name = self.get_veth_pair_names(vif)
+        v1_name, v2_name = ovs.OvsPlugin.get_veth_pair_names(vif)
         linux_net.delete_bridge(vif.port_profile.bridge_name, v1_name)
         # v2_name will be deleted in linux_net.delete_ovs_vif_port,
         # because by default the last parameter 'delete_netdev=True'
