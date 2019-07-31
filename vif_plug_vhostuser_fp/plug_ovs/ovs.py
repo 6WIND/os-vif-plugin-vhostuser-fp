@@ -41,6 +41,17 @@ class OvsFpPlugin(fp_plugin.FpPluginBase):
 
 
     def _create_vif_port(self, vif, vif_name, instance_info, **kwargs):
+        # NOTE(sean-k-mooney): As part of a partial fix to bug #1734320
+        # we introduced the isolate_vif config option to enable isolation
+        # of the vif prior to neutron wiring up the interface. To do
+        # this we take advantage of the fact the ml2/ovs uses the
+        # implementation defined VLAN 4095 as a dead VLAN to indicate
+        # that all packets should be dropped. We only enable this
+        # behaviour conditionally as it is not portable to SDN based
+        # deployment such as ODL or OVN as such operator must opt-in
+        # to this behaviour by setting the isolate_vif config option.
+        if self.config.isolate_vif:
+            kwargs['tag'] = constants.DEAD_VLAN
         self.ovsdb.create_ovs_vif_port(
             vif.network.bridge,
             vif_name,
