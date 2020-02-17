@@ -1,6 +1,6 @@
 # Copyright 2019 6WIND S.A.
 
-PYTHON := python
+PYTHON := python3
 DIST_DIR := dist
 DEPS := ""
 
