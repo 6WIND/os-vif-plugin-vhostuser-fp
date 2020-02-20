@@ -14,7 +14,7 @@
 from oslo_concurrency import processutils
 from oslo_log import log as logging
 
-from os_vif.internal.command import ip as ip_lib
+from os_vif.internal.ip.api import ip as ip_lib
 from os_vif_plugin_vhostuser_fp import fp_plugin
 
 from vif_plug_ovs import constants

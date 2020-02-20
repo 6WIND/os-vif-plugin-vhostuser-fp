@@ -11,7 +11,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from os_vif.internal.command import ip as ip_lib
+from os_vif.internal.ip.api import ip as ip_lib
 from oslo_concurrency import processutils
 
 from fp_vdev_remote.vdev_utils import get_vdev_cmd
