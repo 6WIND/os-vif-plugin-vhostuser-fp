@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright 2019 6WIND S.A.
+# Copyright 2019-2021 6WIND S.A.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -101,6 +101,7 @@ def run_fp_conf_tool(conf_rootdir):
 
     stdout, _ = process.communicate()
     retcode = process.wait()
+    stdout = stdout.decode()
 
     if retcode != 0:
         sys.stderr.write("'%s' returned error status %d. Output:\n%s" %
